@@ -27,7 +27,7 @@ Our current auth works like this:
 - We logout by removing the FE state.
 
 **Question:**  
-Do you agree with this approach?  
+Do you agree with this auth-on-redux approach?  
 If not, how would you improve it?
 
 ### Task 2: Async Account Creation
@@ -39,9 +39,9 @@ Our current account creation works like this:
 
 **Question:**
 
-- How would you improve this process to ensure the app waits until the account status is `"completed"` with a nicer UX?
+- How would you improve this process to ensure the app waits until the account is created with a nicer UX?
   **Note:**
-  The account in the "pending" state is a false flag this just means the async process isn't done it, so no account exists yet.
+  If account is in the "pending" state, then is a false flag. this just means the async process isn't done it, so no account exists yet.
 
 ### Account Breakdown
 
