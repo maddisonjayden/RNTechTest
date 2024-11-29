@@ -62,4 +62,6 @@ We have an account balance breakdown with the following components:
 
 **Question:** Is the current implementation correct? If not, or if you notice any areas for improvement, please make the necessary changes.
 
+**In general**, if you notice any improvements related to architecture, TypeScript, or tests—if applicable—please implement the necessary changes.
+
 Let us know if you have any questions/updates!
