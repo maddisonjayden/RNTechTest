@@ -41,6 +41,7 @@ Our current account creation works like this:
 
 - How would you improve this process to ensure the app waits until the account is created with a nicer UX?
 - If you notice any areas for improvement, please make the necessary changes.
+
   **Note:**
   If account is in the "pending" state, then is a false flag. this just means the async process isn't done it, so no account exists yet.
 
