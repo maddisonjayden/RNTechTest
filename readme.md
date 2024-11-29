@@ -27,8 +27,8 @@ Our current auth works like this:
 - We logout by removing the FE state.
 
 **Question:**  
-Do you agree with this auth-on-redux approach?  
-If not, how would you improve it?
+Do you agree with the auth-on-redux approach?  
+If not, or if you see any areas for improvement, please make the necessary changes.
 
 ### Task 2: Async Account Creation
 
@@ -40,6 +40,7 @@ Our current account creation works like this:
 **Question:**
 
 - How would you improve this process to ensure the app waits until the account is created with a nicer UX?
+- If you notice any areas for improvement, please make the necessary changes.
   **Note:**
   If account is in the "pending" state, then is a false flag. this just means the async process isn't done it, so no account exists yet.
 
@@ -58,6 +59,6 @@ We have an account balance breakdown with the following components:
 
 4. **Available Balance**: The remaining balance after deducting fees and taxes, and adding any interest.
 
-**Question:** Is the current implementation correct?
+**Question:** Is the current implementation correct? If not, or if you notice any areas for improvement, please make the necessary changes.
 
 Let us know if you have any questions/updates!
