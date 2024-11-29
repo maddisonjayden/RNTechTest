@@ -12,18 +12,19 @@ If you encounter any issues during the setup, feel free to reach out for assista
 
 This is a basic React Native app that allows users to manage their accounts. The app includes the following key features:
 
-- **Login and Logout**: Users can log in and log out of their accounts securely.
+- **Auth: Login and Logout**: Users can log in and log out of their accounts.
 - **Account Creation**: After logging in, users can create new accounts.
 - **Balance Breakdown**: Users can view a detailed breakdown of their account balance.
 
 Your task is to enhance this app by implementing the requested features as described below.
 
-### Task 1: Login Implementation
+### Task 1: Auth Implementation
 
-Our current login works like this:
+Our current auth works like this:
 
 - We call a `login` endpoint to authenticate the user.
 - The user data returned is saved directly to Redux.
+- We logout by removing the FE state.
 
 **Question:**  
 Do you agree with this approach?  
