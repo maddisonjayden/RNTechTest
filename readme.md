@@ -43,7 +43,7 @@ Our current account creation works like this:
   **Note:**
   If account is in the "pending" state, then is a false flag. this just means the async process isn't done it, so no account exists yet.
 
-### Account Breakdown
+### Task 3: Account Breakdown
 
 We have an account balance breakdown with the following components:
 
