@@ -11,8 +11,9 @@ import { createAccount } from '@/api';
 import LogoutButton from '@/components/LogoutButton';
 import { logoutUser } from '@/redux/actions/userActions';
 import { calculateBreakdown } from '@/utils';
+import { RootState } from '@/redux/reducers';
 
-function Home({ user }: any) {
+function Home({ user }: { user: any }) {
   const {
     backgrounds,
     changeTheme,
@@ -109,8 +110,8 @@ function Home({ user }: any) {
   );
 }
 
-const mapStateToProps = (state: any) => ({
-  user: state.user,
+const mapStateToProps = (state: RootState) => ({
+  user: state.auth.user,
 });
 const mapDispatchToProps = {
   logoutUser,

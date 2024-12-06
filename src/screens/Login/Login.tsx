@@ -1,5 +1,5 @@
 import { Button, Text, View } from 'react-native';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 
 import { useTheme } from '@/theme';
 import { Paths } from '@/navigation/paths';
@@ -7,12 +7,12 @@ import { Paths } from '@/navigation/paths';
 import { SafeScreen } from '@/components/templates';
 
 import { login } from '@/api';
-import { saveUser } from '@/redux/actions/userActions';
+import { loginRequest, loginSuccess, loginFailure } from '@/redux/actions/authActions';
 
-function Login({ navigation, user, saveUser }: any) {
+function Login({ navigation, user }: any) {
   const { fonts, layout } = useTheme();
-  const isUserLoggedIn = user?.isLoggedIn;
-  console.log({ isUserLoggedIn });
+  const dispatch = useDispatch();
+
   const navigatePostAppLogin = async () => {
     navigation.reset({
       index: 0,
@@ -22,16 +22,17 @@ function Login({ navigation, user, saveUser }: any) {
 
   const doLogin = async () => {
     try {
-      if (isUserLoggedIn) {
-        // Suppose we'll run the biometrics here...
-        navigatePostAppLogin();
-        return;
+      dispatch(loginRequest());
+      const response = await login();
+      
+      if (!response?.tokens || !response?.user) {
+        throw new Error('Invalid login response');
       }
-      const userData = await login();
-      saveUser({ ...userData, isLoggedIn: true });
+
+      dispatch(loginSuccess(response.user, response.tokens));
       navigatePostAppLogin();
     } catch (error: any) {
-      console.error(error?.message);
+      dispatch(loginFailure(error.message));
     }
   };
 
@@ -47,7 +48,7 @@ function Login({ navigation, user, saveUser }: any) {
       >
         <Text style={[fonts.size_16, fonts.gray800]}>Hello, {user?.name}</Text>
         <Button
-          title={isUserLoggedIn ? 'Access your app' : 'Login'}
+          title={user?.isLoggedIn ? 'Access your app' : 'Login'}
           onPress={doLogin}
         />
       </View>
@@ -60,7 +61,9 @@ const mapStateToProps = (state: any) => ({
 });
 
 const mapDispatchToProps = {
-  saveUser,
+  loginRequest,
+  loginSuccess,
+  loginFailure,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
