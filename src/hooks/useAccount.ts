@@ -5,12 +5,12 @@ import { queryClient } from '@/App';
 
 const useAccount = () => {
   const queryFn = async () => {
-    const account = await getAccount(); // Use your defined `getAccount` function
+    const account = await getAccount();
     return account;
   };
 
   const invalidateAccountQuery = () => {
-    queryClient.invalidateQueries(['account'] as any);
+    queryClient.invalidateQueries({ queryKey: ['account'] });
   };
 
   return {
@@ -18,7 +18,11 @@ const useAccount = () => {
     ...useQuery({
       queryFn,
       queryKey: ['account'],
+      refetchInterval: 2000,
+      refetchIntervalInBackground: false,
+      staleTime: 0,
     }),
   };
 };
+
 export default useAccount;
