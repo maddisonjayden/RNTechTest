@@ -48,7 +48,7 @@ function Home({ user }: { user: any }) {
       return (
         <View style={[layout.itemsCenter, gutters.marginTop_16]}>
           <ActivityIndicator size="large" color={colors.purple500} />
-          <Text style={[fonts.size_16, fonts.gray800, { marginTop: 8 }]}>
+          <Text style={[fonts.size_16, fonts.gray800, gutters.marginBottom_16]}>
             {isPending ? 'Creating your account...' : 'Initiating account creation...'}
           </Text>
         </View>
@@ -58,10 +58,14 @@ function Home({ user }: { user: any }) {
     if (status === 'error') {
       return (
         <View style={[layout.itemsStart, gutters.marginTop_16]}>
-          <Text style={[fonts.size_16, { color: colors.red500 }]}>
+          <Text style={[fonts.size_16, { color: colors.red500 }, gutters.marginBottom_12]}>
             Failed to create account. Please try again.
           </Text>
-          <Button title="Retry" onPress={handleCreateAccount} />
+          <Button 
+            title="Retry" 
+            onPress={handleCreateAccount}
+            color={colors.purple500}
+          />
         </View>
       );
     }
@@ -71,67 +75,106 @@ function Home({ user }: { user: any }) {
 
   return (
     <SafeScreen testID="home-screen">
-      <ScrollView>
+      <View style={[layout.row, layout.justifyBetween, gutters.paddingHorizontal_16, gutters.marginTop_16]}>
+        <View style={[gutters.marginBottom_16]}>
+          <Text style={[fonts.size_24, fonts.gray800, fonts.bold]}>Welcome back,</Text>
+          <Text style={[fonts.size_24, fonts.gray800]}>{user?.name}</Text>
+        </View>
+        <LogoutButton />
+      </View>
+
+      <ScrollView style={[layout.flex_1]}>
         <View
           style={[
             layout.justifyCenter,
             layout.justifyBetween,
-            gutters.marginTop_80,
             gutters.paddingHorizontal_16,
-            gutters.gap_12,
+            gutters.gap_24,
           ]}
         >
-          <Text style={[fonts.size_16, fonts.gray800]}>{user?.name},</Text>
-
           {hasAccount ? (
-            <View style={[gutters.gap_12]}>
-              <Text style={[fonts.size_16, fonts.gray800]}>
-                Your account details:
-              </Text>
-              <Text style={[fonts.size_16, fonts.gray800, fonts.bold]}>
-                Balance: {account?.balance}
-              </Text>
-              <View style={[gutters.gap_12]}>
-                <Text style={[fonts.size_16, fonts.gray800, fonts.capitalize]}>
-                  Breakdown:
+            <View style={[gutters.gap_24]}>
+              <View style={[
+                backgrounds.gray100,
+                gutters.padding_16,
+                { borderRadius: 12 }
+              ]}>
+                <Text style={[fonts.size_16, fonts.gray800, fonts.bold, gutters.marginBottom_16]}>
+                  Account Overview
                 </Text>
-                <Text style={[fonts.size_16, fonts.gray800, fonts.capitalize]}>
-                  Monthly Interest: {breakdown?.interest}
+                <Text style={[fonts.size_32, fonts.gray800, fonts.bold]}>
+                  £{account?.balance}
                 </Text>
-                <Text style={[fonts.size_16, fonts.gray800, fonts.capitalize]}>
-                  Fees: {breakdown?.fees}
+              </View>
+
+              <View style={[
+                backgrounds.gray100,
+                gutters.padding_16,
+                { borderRadius: 12 }
+              ]}>
+                <Text style={[fonts.size_16, fonts.gray800, fonts.bold, gutters.marginBottom_16]}>
+                  Breakdown
                 </Text>
-                <Text style={[fonts.size_16, fonts.gray800, fonts.capitalize]}>
-                  Taxes: {breakdown?.taxes}
-                </Text>
-                <Text style={[fonts.size_16, fonts.gray800, fonts.bold]}>
-                  Available balance: {breakdown?.availableBalance}
-                </Text>
+                <View style={[gutters.gap_12]}>
+                  {[
+                    { label: 'Monthly Interest', value: breakdown?.interest },
+                    { label: 'Fees', value: breakdown?.fees },
+                    { label: 'Taxes', value: breakdown?.taxes },
+                    { label: 'Available Balance', value: breakdown?.availableBalance, highlight: true },
+                  ].map(({ label, value, highlight }) => (
+                    <View key={label} style={[layout.row, layout.justifyBetween]}>
+                      <Text style={[
+                        fonts.size_16,
+                        highlight ? fonts.bold : null,
+                        fonts.gray800
+                      ]}>
+                        {label}
+                      </Text>
+                      <Text style={[
+                        fonts.size_16,
+                        highlight ? fonts.bold : null,
+                        fonts.gray800
+                      ]}>
+                        £{value}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
               </View>
             </View>
           ) : (
-            <View style={[layout.itemsStart]}>
-              <Text style={[fonts.size_16, fonts.gray800]}>
-                You have no account yet!
+            <View style={[
+              backgrounds.gray100,
+              gutters.padding_16,
+              { borderRadius: 12 }
+            ]}>
+              <Text style={[fonts.size_16, fonts.gray800, fonts.bold, gutters.marginBottom_16]}>
+                Get Started
+              </Text>
+              <Text style={[fonts.size_16, fonts.gray800, gutters.marginBottom_16]}>
+                Create an account to start managing your finances.
               </Text>
               {!isPending && (
                 <Button
                   title="Create Account"
                   onPress={handleCreateAccount}
                   disabled={status === 'loading'}
+                  color={colors.purple500}
                 />
               )}
               {renderAccountCreationStatus()}
             </View>
           )}
-          
-          <Button
-            title="Refresh your account"
-            onPress={invalidateAccountQuery}
-          />
-          <LogoutButton />
         </View>
       </ScrollView>
+
+      <View style={[gutters.padding_16]}>
+        <Button
+          title="Refresh Account"
+          onPress={invalidateAccountQuery}
+          color={colors.purple500}
+        />
+      </View>
     </SafeScreen>
   );
 }

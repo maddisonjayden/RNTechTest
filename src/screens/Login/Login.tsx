@@ -10,7 +10,7 @@ import { login } from '@/api';
 import { loginRequest, loginSuccess, loginFailure } from '@/redux/actions/authActions';
 
 function Login({ navigation, user }: any) {
-  const { fonts, layout } = useTheme();
+  const { fonts, layout, colors, gutters, backgrounds } = useTheme();
   const dispatch = useDispatch();
 
   const navigatePostAppLogin = async () => {
@@ -44,13 +44,40 @@ function Login({ navigation, user }: any) {
           layout.col,
           layout.itemsCenter,
           layout.justifyCenter,
+          gutters.paddingHorizontal_24,
         ]}
       >
-        <Text style={[fonts.size_16, fonts.gray800]}>Hello, {user?.name}</Text>
-        <Button
-          title={user?.isLoggedIn ? 'Access your app' : 'Login'}
-          onPress={doLogin}
-        />
+        <View style={[
+          backgrounds.gray100,
+          gutters.padding_24,
+          layout.itemsCenter,
+          { borderRadius: 16, width: '100%' }
+        ]}>
+          <Text style={[
+            fonts.size_24,
+            fonts.gray800,
+            fonts.bold,
+            gutters.marginBottom_16
+          ]}>
+            Welcome
+          </Text>
+          
+          {user?.name && (
+            <Text style={[
+              fonts.size_16,
+              fonts.gray800,
+              gutters.marginBottom_24,
+            ]}>
+              {user.name}
+            </Text>
+          )}
+
+          <Button
+            title={user?.isLoggedIn ? 'Continue to Dashboard' : 'Sign In'}
+            onPress={doLogin}
+            color={colors.purple500}
+          />
+        </View>
       </View>
     </SafeScreen>
   );
