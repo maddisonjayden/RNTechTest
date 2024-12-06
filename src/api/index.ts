@@ -1,19 +1,27 @@
+import { AuthToken, User } from '@/types/auth';
 import logger from './logger';
 
 const sleep = (ms: any) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const login = async () => {
-  try {
-    // Simulate a delay of 1000ms
-    await sleep(1000);
-    return {
+interface LoginResponse {
+  tokens: AuthToken;
+  user: User;
+}
+
+export const login = async (): Promise<LoginResponse> => {
+  await sleep(1000);
+  return {
+    tokens: {
+      accessToken: 'mock-access-token-123',
+      refreshToken: 'mock-refresh-token-456',
+      expiresIn: 3600 
+    },
+    user: {
       id: 1,
       name: 'Joe Davis',
-      emailAddress: 'joe@test.com',
-    };
-  } catch (e: any) {
-    logger.error(e);
-  }
+      emailAddress: 'joe@test.com'
+    }
+  };
 };
 
 type Account = {
