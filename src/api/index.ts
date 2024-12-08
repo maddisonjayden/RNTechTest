@@ -1,7 +1,24 @@
+import { MMKV } from 'react-native-mmkv';
 import { AuthToken, User } from '@/types/auth';
 import logger from './logger';
 
+const storage = new MMKV();
+const MOCK_ACCOUNT_KEY = 'mock_account';
+
 const sleep = (ms: any) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const getMockAccount = (): Account | null => {
+  const account = storage.getString(MOCK_ACCOUNT_KEY);
+  return account ? JSON.parse(account) : null;
+};
+
+const setMockAccount = (account: Account | null) => {
+  if (account) {
+    storage.set(MOCK_ACCOUNT_KEY, JSON.stringify(account));
+  } else {
+    storage.delete(MOCK_ACCOUNT_KEY);
+  }
+};
 
 interface LoginResponse {
   tokens: AuthToken;
@@ -14,7 +31,7 @@ export const login = async (): Promise<LoginResponse> => {
     tokens: {
       accessToken: 'mock-access-token-123',
       refreshToken: 'mock-refresh-token-456',
-      expiresIn: 3600 
+      expiresIn: Date.now() + 3600000
     },
     user: {
       id: 1,
@@ -31,18 +48,17 @@ type Account = {
   createdAt: null | number;
 };
 
-let mockAccount: Account | null = null;
-
 export const createAccount = async () => {
   try {
     await sleep(500);
-    mockAccount = {
-      status: 'pending',
+    const account: Account = {
+      status: 'pending' as const,
       balance: 0,
       version: 'v1',
       createdAt: Date.now(),
     };
-    return mockAccount;
+    setMockAccount(account);
+    return account;
   } catch (e: any) {
     logger.error(e);
     throw new Error('Failed to create account');
@@ -50,7 +66,7 @@ export const createAccount = async () => {
 };
 
 export const resetAccount = async () => {
-  mockAccount = null;
+  setMockAccount(null);
 };
 
 export const getAccount = async (
@@ -58,27 +74,37 @@ export const getAccount = async (
 ): Promise<Account | null> => {
   try {
     await sleep(500);
+    const mockAccount = getMockAccount();
 
     if (!mockAccount) {
-      throw new Error('Account not found');
+      return null;
     }
 
-    const createdTime = mockAccount?.createdAt || Date.now();
+    const createdTime = mockAccount.createdAt || Date.now();
 
     // Simulate status update to "completed" after 10 seconds
     if (mockAccount.status === 'pending' && Date.now() - createdTime > 10000) {
-      mockAccount.status = 'completed';
-    }
-    if (mockAccount.status === 'completed') {
-      mockAccount.balance = mockAccount?.balance + 100;
+      const updatedAccount: Account = {
+        ...mockAccount,
+        status: 'completed' as const,
+        balance: mockAccount.balance + 100,
+      };
+      setMockAccount(updatedAccount);
+      return updatedAccount;
     }
 
-    return {
-      ...mockAccount,
-      version: getNewerAccountVersion ? 'v2' : mockAccount?.version,
-    };
+    if (mockAccount.status === 'completed') {
+      const updatedAccount = {
+        ...mockAccount,
+        balance: mockAccount.balance + 100,
+      };
+      setMockAccount(updatedAccount);
+      return updatedAccount;
+    }
+
+    return mockAccount;
   } catch (e: any) {
-    logger.error(e);
+    console.error(e);
     throw new Error('Failed to retrieve account');
   }
 };
