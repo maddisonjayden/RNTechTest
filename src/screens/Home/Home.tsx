@@ -1,11 +1,11 @@
-import { Button, ScrollView, Text, View, ActivityIndicator } from 'react-native';
+import { Button, ScrollView, Text, View, ActivityIndicator, RefreshControl } from 'react-native';
 import { connect } from 'react-redux';
 
 import { useTheme } from '@/theme';
 import useAccount from '@/hooks/useAccount';
-import { useStatus } from '@/hooks/useStatus';
 
 import { SafeScreen } from '@/components/templates';
+import { AnimatedBackground } from '@/components/AnimatedBackground';
 
 import { createAccount } from '@/api';
 import LogoutButton from '@/components/LogoutButton';
@@ -22,50 +22,32 @@ function Home({ user }: { user: any }) {
     layout,
   } = useTheme();
 
-  const { data: account, isLoading, invalidateAccountQuery } = useAccount();
-  const { status, setStatus } = useStatus();
+  const { data: account, isLoading, refetch, isRefetching } = useAccount();
   
-  // Only show account if it's completed
   const hasAccount = account?.status === 'completed';
   const isPending = account?.status === 'pending';
 
   const handleCreateAccount = async () => {
     try {
-      setStatus({ status: 'loading' });
       await createAccount();
-      // Immediately refetch to get the pending state
-      invalidateAccountQuery();
-      setStatus({ status: 'success' });
+      refetch();
     } catch (e) {
-      setStatus({ status: 'error', data: e });
+      console.error(e);
     }
   };
 
   const breakdown = calculateBreakdown(account?.balance || 0);
 
+  const showLoading = isLoading || (account?.status === 'pending');
+
   const renderAccountCreationStatus = () => {
-    if (status === 'loading' || isPending) {
+    if (showLoading) {
       return (
         <View style={[layout.itemsCenter, gutters.marginTop_16]}>
           <ActivityIndicator size="large" color={colors.purple500} />
           <Text style={[fonts.size_16, fonts.gray800, gutters.marginBottom_16]}>
-            {isPending ? 'Creating your account...' : 'Initiating account creation...'}
+            {account?.status === 'pending' ? 'Creating your account...' : 'Checking account status...'}
           </Text>
-        </View>
-      );
-    }
-
-    if (status === 'error') {
-      return (
-        <View style={[layout.itemsStart, gutters.marginTop_16]}>
-          <Text style={[fonts.size_16, { color: colors.red500 }, gutters.marginBottom_12]}>
-            Failed to create account. Please try again.
-          </Text>
-          <Button 
-            title="Retry" 
-            onPress={handleCreateAccount}
-            color={colors.purple500}
-          />
         </View>
       );
     }
@@ -75,6 +57,7 @@ function Home({ user }: { user: any }) {
 
   return (
     <SafeScreen testID="home-screen">
+      <AnimatedBackground />
       <View style={[layout.row, layout.justifyBetween, gutters.paddingHorizontal_16, gutters.marginTop_16]}>
         <View style={[gutters.marginBottom_16]}>
           <Text style={[fonts.size_24, fonts.gray800, fonts.bold]}>Welcome back,</Text>
@@ -83,7 +66,17 @@ function Home({ user }: { user: any }) {
         <LogoutButton />
       </View>
 
-      <ScrollView style={[layout.flex_1]}>
+      <ScrollView 
+        style={[layout.flex_1]}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            colors={[colors.purple500]}
+            tintColor={colors.purple500}
+          />
+        }
+      >
         <View
           style={[
             layout.justifyCenter,
@@ -95,23 +88,19 @@ function Home({ user }: { user: any }) {
           {hasAccount ? (
             <View style={[gutters.gap_24]}>
               <View style={[
-                backgrounds.gray100,
-                gutters.padding_16,
-                { borderRadius: 12 }
+                components.card,
+                backgrounds.purple500,
+                gutters.padding_24,
               ]}>
-                <Text style={[fonts.size_16, fonts.gray800, fonts.bold, gutters.marginBottom_16]}>
+                <Text style={[fonts.size_16, { color: '#FFFFFF' }, fonts.bold, gutters.marginBottom_16]}>
                   Account Overview
                 </Text>
-                <Text style={[fonts.size_32, fonts.gray800, fonts.bold]}>
-                  £{account?.balance}
+                <Text style={[components.balanceText, { color: '#FFFFFF' }, fonts.bold]}>
+                  £{account?.balance?.toLocaleString()}
                 </Text>
               </View>
 
-              <View style={[
-                backgrounds.gray100,
-                gutters.padding_16,
-                { borderRadius: 12 }
-              ]}>
+              <View style={components.card}>
                 <Text style={[fonts.size_16, fonts.gray800, fonts.bold, gutters.marginBottom_16]}>
                   Breakdown
                 </Text>
@@ -121,21 +110,27 @@ function Home({ user }: { user: any }) {
                     { label: 'Fees', value: breakdown?.fees },
                     { label: 'Taxes', value: breakdown?.taxes },
                     { label: 'Available Balance', value: breakdown?.availableBalance, highlight: true },
-                  ].map(({ label, value, highlight }) => (
-                    <View key={label} style={[layout.row, layout.justifyBetween]}>
+                  ].map(({ label, value, highlight }, index, array) => (
+                    <View 
+                      key={label} 
+                      style={[
+                        components.breakdownRow,
+                        index === array.length - 1 && components.breakdownRowLast
+                      ]}
+                    >
                       <Text style={[
                         fonts.size_16,
                         highlight ? fonts.bold : null,
-                        fonts.gray800
+                        { color: highlight ? colors.purple500 : colors.gray800 }
                       ]}>
                         {label}
                       </Text>
                       <Text style={[
                         fonts.size_16,
                         highlight ? fonts.bold : null,
-                        fonts.gray800
+                        { color: highlight ? colors.purple500 : colors.gray800 }
                       ]}>
-                        £{value}
+                        £{value?.toLocaleString()}
                       </Text>
                     </View>
                   ))}
@@ -143,23 +138,18 @@ function Home({ user }: { user: any }) {
               </View>
             </View>
           ) : (
-            <View style={[
-              backgrounds.gray100,
-              gutters.padding_16,
-              { borderRadius: 12 }
-            ]}>
+            <View style={[components.card, gutters.paddingVertical_32]}>
               <Text style={[fonts.size_16, fonts.gray800, fonts.bold, gutters.marginBottom_16]}>
                 Get Started
               </Text>
-              <Text style={[fonts.size_16, fonts.gray800, gutters.marginBottom_16]}>
+              <Text style={[fonts.size_16, fonts.gray800, gutters.marginBottom_24]}>
                 Create an account to start managing your finances.
               </Text>
-              {!isPending && (
+              {!isLoading && !isPending && (
                 <Button
                   title="Create Account"
                   onPress={handleCreateAccount}
-                  disabled={status === 'loading'}
-                  color={colors.purple500}
+                  disabled={isLoading}
                 />
               )}
               {renderAccountCreationStatus()}
@@ -171,8 +161,7 @@ function Home({ user }: { user: any }) {
       <View style={[gutters.padding_16]}>
         <Button
           title="Refresh Account"
-          onPress={invalidateAccountQuery}
-          color={colors.purple500}
+          onPress={() => refetch()}
         />
       </View>
     </SafeScreen>
