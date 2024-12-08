@@ -49,3 +49,10 @@
 **Ensure the calculations follow this formula:**
 - Available Balance = Initial Balance + Interest - Fees - Taxes
 
+**Tests for the following:**
+- Basic positive balance calculation
+- Zero balance handling
+- Large number handling
+- Decimal number handling
+
+
