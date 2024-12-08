@@ -1,28 +1,31 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { getAccount } from '@/api';
-import { queryClient } from '@/App';
+
+interface Account {
+  status: 'pending' | 'completed';
+  balance?: number;
+}
 
 const useAccount = () => {
-  const queryFn = async () => {
-    const account = await getAccount();
-    return account;
+  const queryFn = async (): Promise<Account | null> => {
+    try {
+      const account = await getAccount();
+      return account;
+    } catch (e: unknown) {
+      throw e;
+    }
   };
 
-  const invalidateAccountQuery = () => {
-    queryClient.invalidateQueries({ queryKey: ['account'] });
-  };
-
-  return {
-    invalidateAccountQuery,
-    ...useQuery({
-      queryFn,
-      queryKey: ['account'],
-      refetchInterval: 2000,
-      refetchIntervalInBackground: false,
-      staleTime: 0,
-    }),
-  };
+  return useQuery<Account | null, Error>({
+    queryFn,
+    queryKey: ['account'],
+    refetchInterval: (query) => {
+      return query.state.data?.status === 'completed' ? false : 2000;
+    },
+    refetchIntervalInBackground: false,
+    staleTime: 0,
+  });
 };
 
 export default useAccount;
