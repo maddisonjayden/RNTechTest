@@ -1,17 +1,25 @@
-import { Button, Text, View } from 'react-native';
-import { connect, useDispatch } from 'react-redux';
+import { Text, View, TouchableOpacity } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { useTheme } from '@/theme';
 import { Paths } from '@/navigation/paths';
 
 import { SafeScreen } from '@/components/templates';
+import { AnimatedBackground } from '@/components/AnimatedBackground';
 
 import { login } from '@/api';
 import { loginRequest, loginSuccess, loginFailure } from '@/redux/actions/authActions';
+import { RootState } from '@/types/store';
 
-function Login({ navigation, user }: any) {
-  const { fonts, layout, colors, gutters, backgrounds } = useTheme();
+interface LoginProps {
+  navigation: any;
+}
+
+function Login({ navigation }: LoginProps) {
+  const { fonts, layout, colors, gutters, components } = useTheme();
   const dispatch = useDispatch();
+  const userName = useSelector((state: RootState) => state.auth.user?.name);
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
 
   const navigatePostAppLogin = async () => {
     navigation.reset({
@@ -28,7 +36,6 @@ function Login({ navigation, user }: any) {
       if (!response?.tokens || !response?.user) {
         throw new Error('Invalid login response');
       }
-
       dispatch(loginSuccess(response.user, response.tokens));
       navigatePostAppLogin();
     } catch (error: any) {
@@ -38,59 +45,80 @@ function Login({ navigation, user }: any) {
 
   return (
     <SafeScreen>
+      <AnimatedBackground />
       <View
         style={[
           layout.flex_1,
           layout.col,
           layout.itemsCenter,
           layout.justifyCenter,
-          gutters.paddingHorizontal_24,
+          gutters.paddingHorizontal_16,
         ]}
       >
-        <View style={[
-          backgrounds.gray100,
-          gutters.padding_24,
-          layout.itemsCenter,
-          { borderRadius: 16, width: '100%' }
-        ]}>
-          <Text style={[
-            fonts.size_24,
-            fonts.gray800,
-            fonts.bold,
-            gutters.marginBottom_16
-          ]}>
-            Welcome
-          </Text>
-          
-          {user?.name && (
-            <Text style={[
-              fonts.size_16,
-              fonts.gray800,
-              gutters.marginBottom_24,
-            ]}>
-              {user.name}
+        <View
+          style={[
+            layout.itemsCenter,
+            components.card,
+            {
+              width: '85%',
+              maxWidth: 400,
+            },
+          ]}
+        >
+          <View style={[layout.itemsCenter, gutters.marginBottom_24]}>
+            <Text
+              style={[
+                fonts.size_32,
+                fonts.gray800,
+                fonts.bold,
+                { textAlign: 'center' },
+              ]}
+            >
+              Welcome
             </Text>
-          )}
+            
+            {userName && (
+              <Text
+                style={[
+                  fonts.size_16,
+                  fonts.gray800,
+                  { textAlign: 'center' },
+                  gutters.marginTop_16,
+                ]}
+              >
+                {userName}
+              </Text>
+            )}
+          </View>
 
-          <Button
-            title={user?.isLoggedIn ? 'Continue to Dashboard' : 'Sign In'}
+          <TouchableOpacity
+            style={[
+              layout.fullWidth,
+              layout.itemsCenter,
+              gutters.paddingVertical_16,
+              gutters.paddingHorizontal_24,
+              {
+                backgroundColor: colors.purple500,
+                borderRadius: 12,
+              },
+            ]}
             onPress={doLogin}
-            color={colors.purple500}
-          />
+            activeOpacity={0.8}
+          >
+            <Text
+              style={[
+                fonts.size_16,
+                fonts.gray100,
+                fonts.bold,
+              ]}
+            >
+              {isLoggedIn ? 'Continue to Dashboard' : 'Sign In'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeScreen>
   );
 }
 
-const mapStateToProps = (state: any) => ({
-  user: state.user,
-});
-
-const mapDispatchToProps = {
-  loginRequest,
-  loginSuccess,
-  loginFailure,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default Login;

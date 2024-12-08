@@ -1,5 +1,5 @@
 import { Button, ScrollView, Text, View, ActivityIndicator, RefreshControl } from 'react-native';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { useTheme } from '@/theme';
 import useAccount from '@/hooks/useAccount';
@@ -12,7 +12,9 @@ import LogoutButton from '@/components/LogoutButton';
 import { calculateBreakdown } from '@/utils';
 import { RootState } from '@/redux/reducers';
 
-function Home({ user }: { user: any }) {
+function Home() {
+  const user = useSelector((state: RootState) => state.auth.user);
+
   const {
     backgrounds,
     colors,
@@ -168,8 +170,4 @@ function Home({ user }: { user: any }) {
   );
 }
 
-const mapStateToProps = (state: RootState) => ({
-  user: state.auth.user,
-});
-
-export default connect(mapStateToProps)(Home);
+export default Home;
