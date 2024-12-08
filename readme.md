@@ -35,7 +35,7 @@
 
 **Futher possible improvements not included**
 - Consider implementing webhook callbacks for account status updates
-= Add retry mechanism for failed API calls
+- Add retry mechanism for failed API calls
 - Implement progressive backoff for polling intervals
 
 ### Task 3: Account Breakdown
